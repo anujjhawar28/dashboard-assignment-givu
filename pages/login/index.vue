@@ -25,19 +25,20 @@
                     class="flex content-center items-center justify-between text-sm"
                   >
                     <label
-                      for="n6DZYz9WIK7_363"
+                      for="username"
                       class="block font-medium text-gray-700 dark:text-gray-200"
-                      >Email</label
+                      >Username</label
                     >
                   </div>
                 </div>
                 <div class="mt-1 relative">
                   <div class="relative">
                     <input
-                      id="n6DZYz9WIK7_363"
-                      name="email"
+                      id="username"
+                      name="username"
+                      v-model="user.username"
                       type="text"
-                      placeholder="Enter your email"
+                      placeholder="Enter your username"
                       class="relative block w-full disabled:cursor-not-allowed disabled:opacity-75 focus:outline-none border-0 form-input rounded-md placeholder-gray-400 dark:placeholder-gray-500 text-sm px-2.5 py-1.5 shadow-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white ring-1 ring-inset ring-gray-300 dark:ring-gray-700 focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400"
                     />
                   </div>
@@ -52,8 +53,8 @@
                     class="block font-medium text-gray-700 dark:text-gray-200"
                     >Password</label
                   ><span class="text-gray-500 dark:text-gray-400"
-                    ><a href="/" class="text-primary font-medium"
-                      >Forgot password?</a
+                    ><NuxtLink to="/login" class="text-primary font-medium"
+                      >Forgot password?</NuxtLink
                     ></span
                   >
                 </div>
@@ -63,6 +64,7 @@
                       id="n6DZYz9WIK7_364"
                       name="password"
                       type="password"
+                      v-model="user.password"
                       placeholder="Enter your password"
                       class="relative block w-full disabled:cursor-not-allowed disabled:opacity-75 focus:outline-none border-0 form-input rounded-md placeholder-gray-400 dark:placeholder-gray-500 text-sm px-2.5 py-1.5 shadow-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white ring-1 ring-inset ring-gray-300 dark:ring-gray-700 focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400"
                     />
@@ -70,6 +72,7 @@
                 </div>
               </div>
               <div
+                v-if="showError"
                 class="w-full relative overflow-hidden rounded-lg p-4 bg-red-500 dark:bg-red-400 text-white dark:text-gray-900"
               >
                 <div class="flex gap-3 items-center">
@@ -78,16 +81,19 @@
                     ui="flex-shrink-0 w-5 h-5"
                   ></span>
                   <div class="w-0 flex-1">
-                    <p class="text-sm font-medium">Error while log in</p>
+                    <p class="text-sm font-medium">{{ errorMessage }}</p>
                   </div>
                 </div>
               </div>
-              <button
-                type="submit"
-                class="focus:outline-none disabled:cursor-not-allowed disabled:opacity-75 flex-shrink-0 font-medium rounded-md text-sm gap-x-1.5 px-2.5 py-1.5 shadow-sm text-white dark:text-gray-900 bg-primary-500 hover:bg-primary-600 disabled:bg-primary-500 dark:bg-primary-400 dark:hover:bg-primary-500 dark:disabled:bg-primary-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500 dark:focus-visible:outline-primary-400 w-full flex justify-center items-center"
+              <UButton
+                color="primary"
+                variant="solid"
+                class="w-full justify-center"
+                :loading="loading"
+                @click.prevent="login"
               >
-                <span>Log In</span>
-              </button>
+                Login
+              </UButton>
             </form>
           </div>
           <p class="text-sm text-gray-500 dark:text-gray-400 mt-2 text-center">
@@ -103,19 +109,35 @@
 </template>
 
 <script setup>
-import { onMounted } from "vue";
+import { ref } from "vue";
+import { storeToRefs } from "pinia";
+import { useAuthStore } from "~/store/auth";
+
+const router = useRouter();
+const toast = useToast();
+const user = ref({
+  username: "kminchelle",
+  password: "0lelplR",
+});
+const showError = ref(false);
+const errorMessage = ref("Error while log in");
+
+const { authenticateUser } = useAuthStore();
+
+const { authenticated, loading, userInfo } = storeToRefs(useAuthStore());
 
 const login = async () => {
-  await useFetch("https://dummyjson.com/auth/login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      username: "kminchelle",
-      password: "0lelplR",
-      expiresInMins: 30, // optional, defaults to 60
-    }),
-  }).then(({ data }) => console.log(data.value));
-};
+  await authenticateUser(user.value);
 
-onMounted(async () => {});
+  if (authenticated) {
+    console.log(userInfo);
+    toast.add({
+      id: "login",
+      icon: "i-heroicons-check-circle",
+      title: `Hi ${userInfo.value?.firstName}, Welcome !!`,
+      timeout: 3000,
+    });
+    router.push("/");
+  }
+};
 </script>
