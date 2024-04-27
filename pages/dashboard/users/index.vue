@@ -10,7 +10,17 @@
         <div
           class="flex px-3 py-3.5 border-b border-gray-200 dark:border-gray-700"
         >
-          <UInput v-model="query" placeholder="Search user..." />
+          <UInput v-model="query" placeholder="Search user..." class="mr-2" />
+          <UButton
+            icon="i-heroicons-user-plus-20-solid"
+            label="Add User"
+            :loading="loading"
+            @click="
+              userActionPopup = true;
+              isEdit = false;
+              selectedUser = {};
+            "
+          />
         </div>
       </div>
       <UTable :rows="rows" :columns="columns" :loading="loading">
@@ -85,6 +95,107 @@
         </template>
       </UCard>
     </UModal>
+
+    <USlideover v-model="userActionPopup" prevent-close>
+      <UCard
+        :ui="{
+          ring: '',
+          divide: 'divide-y divide-gray-100 dark:divide-gray-800 h-full w-full',
+        }"
+      >
+        <template #header>
+          <div class="flex items-center justify-between">
+            <h2
+              class="font-semibold leading-6 text-gray-900 dark:text-white text-lg"
+            >
+              {{ isEdit ? "Edit" : "Add" }} User
+            </h2>
+            <UButton
+              color="gray"
+              variant="ghost"
+              icon="i-heroicons-x-mark-20-solid"
+              class="-my-1"
+              @click="
+                userActionPopup = false;
+                isEdit = false;
+              "
+            />
+          </div>
+        </template>
+
+        <div class="mt-4 grid grid-cols-1 gap-x-6 gap-y-6">
+          <div class="sm:col-span-3">
+            <label
+              for="first-name"
+              class="block text-sm font-medium leading-6 text-gray-900"
+              >First name</label
+            >
+            <div class="mt-2">
+              <UInput v-model="selectedUser.firstname" />
+            </div>
+          </div>
+
+          <div class="sm:col-span-3">
+            <label
+              for="last-name"
+              class="block text-sm font-medium leading-6 text-gray-900"
+              >Last name</label
+            >
+            <div class="mt-2">
+              <UInput v-model="selectedUser.lastname" />
+            </div>
+          </div>
+
+          <div class="sm:col-span-4">
+            <label
+              for="email"
+              class="block text-sm font-medium leading-6 text-gray-900"
+              >Email address</label
+            >
+            <div class="mt-2">
+              <UInput v-model="selectedUser.email" type="email" />
+            </div>
+          </div>
+
+          <div class="sm:col-span-4">
+            <label
+              for="phone"
+              class="block text-sm font-medium leading-6 text-gray-900"
+              >Phone</label
+            >
+            <div class="mt-2">
+              <UInput v-model="selectedUser.phone" type="number" />
+            </div>
+          </div>
+
+          <div class="sm:col-span-4">
+            <label
+              for="username"
+              class="block text-sm font-medium leading-6 text-gray-900"
+              >Username</label
+            >
+            <div class="mt-2">
+              <UInput v-model="selectedUser.username" />
+            </div>
+          </div>
+        </div>
+
+        <template #footer>
+          <div class="flex items-center justify-end fixed right-0 bottom-0 p-4">
+            <UButton
+              class="mr-2"
+              label="Cancel"
+              variant="outline"
+              @click="
+                userActionPopup = false;
+                isEdit = false;
+              "
+            />
+            <UButton label="Save" :loading="loading" @click="handleSave" />
+          </div>
+        </template>
+      </UCard>
+    </USlideover>
   </div>
 </template>
 
@@ -98,9 +209,11 @@ definePageMeta({
 });
 
 const toast = useToast();
-const { getUsers, removeUser } = useUserStore();
+const { getUsers, removeUser, addUser, updateUser } = useUserStore();
 const deleteConfirmation = ref(false);
+const userActionPopup = ref(false);
 const selectedUser = ref();
+const isEdit = ref(false);
 const columns = [
   {
     key: "_uuid",
@@ -140,7 +253,11 @@ const items = (row) => [
     {
       label: "Edit",
       icon: "i-heroicons-pencil-square-20-solid",
-      click: () => console.log("Edit", row),
+      click: () => {
+        isEdit.value = true;
+        userActionPopup.value = true;
+        selectedUser.value = row;
+      },
     },
   ],
   [
@@ -186,8 +303,43 @@ const handleDelete = async () => {
       title: "User Deleted Successfully!",
       timeout: 3000,
     });
+  } else {
+    toast.add({
+      icon: "i-heroicons-check-circle",
+      title: "Error: Failed to delete user.",
+      color: "red",
+      timeout: 3000,
+    });
   }
+  query.value = "";
   deleteConfirmation.value = false;
+};
+
+const handleSave = async () => {
+  let response;
+  if (isEdit.value) {
+    response = await updateUser([selectedUser.value]);
+  } else {
+    response = await addUser([selectedUser.value]);
+  }
+  if (response && (response.items.length || response._uuid)) {
+    toast.add({
+      icon: "i-heroicons-check-circle",
+      title: "User Saved Successfully!",
+      timeout: 3000,
+    });
+    selectedUser.value = {};
+  } else {
+    toast.add({
+      icon: "i-heroicons-check-circle",
+      title: "Error: Failed to perform operation on user(s).",
+      color: "red",
+      timeout: 3000,
+    });
+  }
+  userActionPopup.value = false;
+  query.value = "";
+  await getUsers();
 };
 
 onMounted(async () => {

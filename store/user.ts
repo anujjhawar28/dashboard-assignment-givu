@@ -47,6 +47,52 @@ export const useUserStore = defineStore('user', {
                 console.error('Error deleting user:', error);
                 throw new Error('Failed to delete the user');
             }
+        },
+        async addUser(users: any[]) {
+            try {
+                this.loading = true;
+                const runtimeConfig = useRuntimeConfig();
+                const { apiBase, apiSecret } = runtimeConfig.public;
+                const response = await fetch(`${apiBase}/user`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiSecret}`
+                    },
+                    body: JSON.stringify(users),
+                });
+                const data = await response.json();
+                if (data) {
+                    this.loading = false;
+                }
+                return data;
+            } catch (error) {
+                console.error('Error Adding user:', error);
+                throw new Error('Failed to add the user');
+            }
+        },
+        async updateUser(users: any[]) {
+            try {
+                this.loading = true;
+                const runtimeConfig = useRuntimeConfig();
+                const { apiBase, apiSecret } = runtimeConfig.public;
+                const response = await fetch(`${apiBase}/user`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiSecret}`
+                    },
+                    body: JSON.stringify(users),
+                });
+                const data = await response.json();
+                if (data) {
+                    this.loading = false;
+                }
+                return data;
+            } catch (error) {
+                console.error('Error Updating user:', error);
+                throw new Error('Failed to update the user');
+            }
         }
     },
 });
