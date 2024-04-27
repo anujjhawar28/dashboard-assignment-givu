@@ -38,7 +38,7 @@
       <UTooltip :text="isDark ? 'Light' : 'Dark'">
         <UButton
           :icon="
-            isDark ? 'i-heroicons-moon-20-solid' : 'i-heroicons-sun-20-solid'
+            !isDark ? 'i-heroicons-moon-20-solid' : 'i-heroicons-sun-20-solid'
           "
           color="gray"
           variant="ghost"
