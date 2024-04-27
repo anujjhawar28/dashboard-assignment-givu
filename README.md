@@ -2,22 +2,30 @@
 
 Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
 
+
+## Live Demo 
+[Vercel Demo App ](dashboard-assignment-givu.vercel.app)
+
+
 ## Setup
 
 Make sure to install the dependencies:
 
+1. Clone the repository:
 ```bash
-# npm
+git clone https://github.com/anujjhawar28/dashboard-assignment-givu.git
+```
+
+
+2. Clone the repository:
+```bash
+cd dashboard-assignment-givu
+```
+
+
+3. Install the dependencies:
+```bash
 npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
 ```
 
 ## Development Server
