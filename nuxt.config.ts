@@ -5,5 +5,11 @@ export default defineNuxtConfig({
   colorMode: {
     preference: 'light', // default value of $colorMode.preference
     fallback: 'light', // fallback value if not system preference found
+  },
+  runtimeConfig: {
+    public: {
+      apiSecret: 'ATmVldIvmOu0txycNL_5hjVomGxKiDugDXHNDNh3Tk9AaeUeUA',
+      apiBase: 'https://crudapi.co.uk/api/v1'
+    }
   }
 })

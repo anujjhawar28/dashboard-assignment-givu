@@ -1,9 +1,9 @@
 <template>
   <div
-    class="flex border border-gray-200 dark:border-gray-700 relative rounded-t-md p-4 border-b-0 not-prose bg-white dark:bg-gray-900 py-8"
+    class="flex border border-gray-200 dark:border-gray-700 relative rounded-t-md p-4 border-b-0 not-prose bg-white dark:bg-gray-900 py-8 h-screen"
   >
     <div
-      class="rounded-lg divide-y divide-gray-200 dark:divide-gray-800 ring-1 ring-gray-200 dark:ring-gray-800 shadow bg-white dark:bg-gray-900 max-w-sm w-full mx-auto"
+      class="rounded-lg divide-y divide-gray-200 dark:divide-gray-800 ring-1 ring-gray-200 dark:ring-gray-800 shadow bg-white dark:bg-gray-900 max-w-sm w-full mx-auto max-h-96"
     >
       <div class="px-4 py-5 sm:p-6">
         <div class="w-full max-w-sm space-y-6">
@@ -130,7 +130,6 @@ const login = async () => {
   await authenticateUser(user.value);
 
   if (authenticated) {
-    console.log(userInfo);
     toast.add({
       id: "login",
       icon: "i-heroicons-check-circle",
